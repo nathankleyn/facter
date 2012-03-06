@@ -1,6 +1,6 @@
 # Rakefile for facter
 
-$: << File.expand_path('lib')
+$:.unshift File.expand_path('lib')
 $LOAD_PATH << File.join(File.dirname(__FILE__), 'tasks')
 
 require 'rubygems'
@@ -9,6 +9,7 @@ require 'rspec/core/rake_task'
 begin
   require 'rcov'
 rescue LoadError
+  nil
 end
 
 Dir['tasks/**/*.rake'].each { |t| load t }
@@ -17,46 +18,15 @@ require 'rake'
 require 'rake/packagetask'
 require 'rake/gempackagetask'
 
-module Facter
-  FACTERVERSION = File.read('lib/facter.rb')[/FACTERVERSION *= *'(.*)'/,1] or fail "Couldn't find FACTERVERSION"
-end
-
-FILES = FileList[
-  '[A-Z]*',
-  'install.rb',
-  'bin/**/*',
-  'lib/**/*',
-  'conf/**/*',
-  'etc/**/*',
-  'spec/**/*'
-]
-
-spec = Gem::Specification.new do |spec|
-  spec.platform = Gem::Platform::RUBY
-  spec.name = 'facter'
-  spec.files = FILES.to_a
-  spec.executables = %w{facter}
-  spec.version = Facter::FACTERVERSION
-  spec.summary = 'Facter, a system inventory tool'
-  spec.description = 'You can prove anything with facts!'
-  spec.author = 'Puppet Labs'
-  spec.email = 'info@puppetlabs.com'
-  spec.homepage = 'http://puppetlabs.com'
-  spec.rubyforge_project = 'facter'
-  spec.has_rdoc = true
-  spec.rdoc_options <<
-    '--title' <<  'Facter - System Inventory Tool' <<
-    '--main' << 'README' <<
-    '--line-numbers'
-end
+load 'facter.gemspec'
 
 Rake::PackageTask.new("facter", Facter::FACTERVERSION) do |pkg|
   pkg.package_dir = 'pkg'
   pkg.need_tar_gz = true
-  pkg.package_files = FILES.to_a
+  pkg.package_files = GEM_FILES.to_a
 end
 
-Rake::GemPackageTask.new(spec) do |pkg|
+Rake::GemPackageTask.new(GEM_SPEC) do |pkg|
 end
 
 task :default do
