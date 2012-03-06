@@ -1,5 +1,8 @@
 $:.unshift File.expand_path('lib')
 
+require 'rubygems'
+require 'rake'
+
 module Facter
   FACTERVERSION = File.read('lib/facter.rb')[/FACTERVERSION *= *'(.*)'/,1] or fail "Couldn't find FACTERVERSION"
 end
